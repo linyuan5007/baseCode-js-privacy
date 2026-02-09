@@ -1,0 +1,1 @@
+{"version":3,"file":"toObjMap.d.ts","sourceRoot":"","sources":["../../../src/jsutils/toObjMap.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,KAAK,EAAE,MAAM,SAAS,CAAC;AACrC,OAAO,KAAK,EAAE,cAAc,EAAE,kBAAkB,EAAE,MAAM,UAAU,CAAC;AAEnE,wBAAgB,QAAQ,CAAC,CAAC,EACxB,GAAG,EAAE,KAAK,CAAC,kBAAkB,CAAC,CAAC,CAAC,CAAC,GAChC,cAAc,CAAC,CAAC,CAAC,CAcnB"}

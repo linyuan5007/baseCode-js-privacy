@@ -24,7 +24,7 @@ export function MaxIntrospectionDepthRule(
   ): boolean {
     if (node.kind === Kind.FRAGMENT_SPREAD) {
       const fragmentName = node.name.value;
-      if (visitedFragments[fragmentName] === true) {
+      if (visitedFragments[fragmentName]) {
         // Fragment cycles are handled by `NoFragmentCyclesRule`.
         return false;
       }

@@ -162,7 +162,7 @@ describe('resolveSchemaCoordinate', () => {
   });
 
   it('resolves a Directive Argument', () => {
-    const directive = schema.getDirective('private') as GraphQLDirective;
+    const directive = schema.getDirective('private') ;
     const directiveArgument = directive.args.find(
       (arg) => arg.name === 'scope',
     );

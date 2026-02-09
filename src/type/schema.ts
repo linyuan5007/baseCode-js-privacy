@@ -150,7 +150,7 @@ export class GraphQLSchema {
   constructor(config: Readonly<GraphQLSchemaConfig>) {
     // If this schema was built from a source known to be valid, then it may be
     // marked with assumeValid to avoid an additional type system validation.
-    this.__validationErrors = config.assumeValid === true ? [] : undefined;
+    this.__validationErrors = config.assumeValid ? [] : undefined;
 
     // Check for common mistakes during construction to produce early errors.
     devAssert(isObjectLike(config), 'Must provide configuration object.');

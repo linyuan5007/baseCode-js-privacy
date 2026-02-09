@@ -42,7 +42,7 @@ export function buildASTSchema(
     'Must provide valid Document AST.',
   );
 
-  if (options?.assumeValid !== true && options?.assumeValidSDL !== true) {
+  if (!options?.assumeValid && !options?.assumeValidSDL) {
     assertValidSDL(documentAST);
   }
 

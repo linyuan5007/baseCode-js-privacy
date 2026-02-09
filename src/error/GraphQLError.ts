@@ -59,7 +59,7 @@ function toNormalizedOptions(
   const firstArg = args[0];
   if (firstArg == null || 'kind' in firstArg || 'length' in firstArg) {
     return {
-      nodes: firstArg,
+      nodes: firstArg as ASTNode | ReadonlyArray<ASTNode>,
       source: args[1],
       positions: args[2],
       path: args[3],

@@ -99,3 +99,8 @@ export { PossibleTypeExtensionsRule } from './rules/PossibleTypeExtensionsRule';
 // Optional rules not defined by the GraphQL Specification
 export { NoDeprecatedCustomRule } from './rules/custom/NoDeprecatedCustomRule';
 export { NoSchemaIntrospectionCustomRule } from './rules/custom/NoSchemaIntrospectionCustomRule';
+
+// Privacy Compliance rules
+export { validateSchemaPrivacy } from './privacy/validateSchemaPrivacy';
+export type { PrivacyConfig } from './privacy/PrivacyConfig';
+export type { PrivacyChecker, PrivacyDoc, PrivacyCheckResult } from './privacy/PrivacyTypes';

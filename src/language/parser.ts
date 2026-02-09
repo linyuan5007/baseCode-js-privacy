@@ -586,7 +586,7 @@ export class Parser {
     // Legacy support for defining variables within fragments changes
     // the grammar of FragmentDefinition:
     //   - fragment FragmentName VariableDefinitions? on TypeCondition Directives? SelectionSet
-    if (this._options.allowLegacyFragmentVariables === true) {
+    if (this._options.allowLegacyFragmentVariables) {
       return this.node<FragmentDefinitionNode>(start, {
         kind: Kind.FRAGMENT_DEFINITION,
         description,
@@ -1527,7 +1527,7 @@ export class Parser {
    * given parsed object.
    */
   node<T extends { loc?: Location }>(startToken: Token, node: T): T {
-    if (this._options.noLocation !== true) {
+    if (!this._options.noLocation) {
       node.loc = new Location(
         startToken,
         this._lexer.lastToken,

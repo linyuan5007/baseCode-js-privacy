@@ -1,0 +1,1 @@
+{"version":3,"file":"NoUnusedVariablesRule.d.ts","sourceRoot":"","sources":["../../../src/validation/rules/NoUnusedVariablesRule.ts"],"names":[],"mappings":"AAGA,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,wBAAwB,CAAC;AAEzD,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,sBAAsB,CAAC;AAE9D;;;;;;;GAOG;AACH,wBAAgB,qBAAqB,CAAC,OAAO,EAAE,iBAAiB,GAAG,UAAU,CAmC5E"}

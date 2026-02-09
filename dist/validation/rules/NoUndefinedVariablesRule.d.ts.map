@@ -1,0 +1,1 @@
+{"version":3,"file":"NoUndefinedVariablesRule.d.ts","sourceRoot":"","sources":["../../../src/validation/rules/NoUndefinedVariablesRule.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,wBAAwB,CAAC;AAEzD,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,sBAAsB,CAAC;AAE9D;;;;;;;GAOG;AACH,wBAAgB,wBAAwB,CACtC,OAAO,EAAE,iBAAiB,GACzB,UAAU,CA8BZ"}

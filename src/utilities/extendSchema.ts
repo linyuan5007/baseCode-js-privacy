@@ -116,7 +116,7 @@ export function extendSchema(
     'Must provide valid Document AST.',
   );
 
-  if (options?.assumeValid !== true && options?.assumeValidSDL !== true) {
+  if (!options?.assumeValid && !options?.assumeValidSDL) {
     assertValidSDLExtension(documentAST, schema);
   }
 
@@ -407,7 +407,6 @@ export function extendSchemaImpl(
         // Note: While this could make early assertions to get the correctly
         // typed values below, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
-        // @ts-expect-error
         opTypes[operationType.operation] = getNamedType(operationType.type);
       }
     }

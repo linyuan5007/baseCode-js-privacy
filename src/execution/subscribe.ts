@@ -11,6 +11,7 @@ import type { DocumentNode } from '../language/ast';
 
 import type { GraphQLFieldResolver } from '../type/definition';
 import type { GraphQLSchema } from '../type/schema';
+import { isSchema } from '../type/schema';
 
 import { collectFields } from './collectFields';
 import type {
@@ -99,9 +100,13 @@ function toNormalizedArgs(args: BackwardsCompatibleArgs): ExecutionArgs {
   }
 
   return {
-    schema: firstArg,
+    schema:
+  isSchema(firstArg)
+    ? firstArg
+    : firstArg.schema,
+
     // FIXME: when underlying TS bug fixed, see https://github.com/microsoft/TypeScript/issues/31613
-    document: args[1] as DocumentNode,
+    document: args[1] ,
     rootValue: args[2],
     contextValue: args[3],
     variableValues: args[4],

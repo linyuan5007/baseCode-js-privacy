@@ -3,6 +3,8 @@ import { isPromise } from './jsutils/isPromise';
 import type { Maybe } from './jsutils/Maybe';
 import type { PromiseOrValue } from './jsutils/PromiseOrValue';
 
+import { GraphQLError } from './error/GraphQLError';
+
 import { parse } from './language/parser';
 import type { Source } from './language/source';
 
@@ -13,6 +15,7 @@ import type {
 import type { GraphQLSchema } from './type/schema';
 import { validateSchema } from './type/validate';
 
+import { enforcePrivacy } from './validation/privacy/PrivacyManager';
 import { validate } from './validation/validate';
 
 import type { ExecutionResult } from './execution/execute';
@@ -79,6 +82,9 @@ export function graphql(args: GraphQLArgs): Promise<ExecutionResult> {
  * However, it guarantees to complete synchronously (or throw an error) assuming
  * that all field resolvers are also synchronous.
  */
+export { validateSchemaPrivacy } from './validation/privacy/validateSchemaPrivacy';
+export type { PrivacyConfig } from './validation/privacy/PrivacyConfig';
+
 export function graphqlSync(args: GraphQLArgs): ExecutionResult {
   const result = graphqlImpl(args);
 
@@ -129,7 +135,7 @@ function graphqlImpl(args: GraphQLArgs): PromiseOrValue<ExecutionResult> {
   }
 
   // Execute
-  return execute({
+  const executionResult = execute({
     schema,
     document,
     rootValue,
@@ -139,4 +145,42 @@ function graphqlImpl(args: GraphQLArgs): PromiseOrValue<ExecutionResult> {
     fieldResolver,
     typeResolver,
   });
+
+  // Privacy enforcement (async-aware)
+  if (isPromise(executionResult)) {
+    return executionResult.then(async (result) => {
+      if (result.data != null) {
+        const privacyResult = await enforcePrivacy(result.data);
+
+        if (privacyResult?.violated) {
+          return {
+            data: null,
+            errors: [
+              new GraphQLError('Privacy policy violated', {
+                extensions: {
+                  code: 'PRIVACY_VIOLATION',
+                  reason: privacyResult.reason,
+                },
+              }),
+            ],
+          };
+        }
+      }
+
+      return result;
+    });
+  }
+  
+  // Synchronous execution path
+  if (executionResult.data != null) {
+    const privacyResult = enforcePrivacy(executionResult.data);
+
+    if (isPromise(privacyResult)) {
+      throw new Error(
+        'Privacy enforcement requires async execution. Use graphql() instead of graphqlSync().',
+      );
+    }
+  }
+
+  return executionResult;
 }

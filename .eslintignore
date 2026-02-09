@@ -6,6 +6,7 @@
 /denoDist
 /websiteDist
 /website
+/dist
 
 # Ignore TS files inside integration test
 /integrationTests/ts/*.ts

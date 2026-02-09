@@ -390,9 +390,10 @@ export {
   // Custom validation rules
   NoDeprecatedCustomRule,
   NoSchemaIntrospectionCustomRule,
+  validateSchemaPrivacy,
 } from './validation/index';
 
-export type { ValidationRule } from './validation/index';
+export type { ValidationRule, PrivacyConfig, PrivacyChecker, PrivacyDoc, PrivacyCheckResult } from './validation/index';
 
 // Create, format, and print GraphQL errors.
 export {

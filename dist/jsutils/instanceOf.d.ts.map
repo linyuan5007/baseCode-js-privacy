@@ -1,0 +1,1 @@
+{"version":3,"file":"instanceOf.d.ts","sourceRoot":"","sources":["../../src/jsutils/instanceOf.ts"],"names":[],"mappings":"AAQA;;;;;GAKG;AACH,eAAO,MAAM,UAAU,EAAE,CAAC,KAAK,EAAE,OAAO,EAAE,WAAW,EAAE,WAAW,KAAK,OAuChE,CAAC;AAER,UAAU,WAAY,SAAQ,QAAQ;IACpC,SAAS,EAAE;QACT,CAAC,MAAM,CAAC,WAAW,CAAC,EAAE,MAAM,CAAC;KAC9B,CAAC;CACH"}
