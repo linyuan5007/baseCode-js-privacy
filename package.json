@@ -81,6 +81,8 @@
     "mocha": "9.2.2",
     "nock": "^14.0.10",
     "prettier": "2.6.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.0-dev.20260206"
   },
   "publishConfig": {

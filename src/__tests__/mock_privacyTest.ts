@@ -113,6 +113,8 @@ describe('Privacy Enforcement Tests', () => {
     expect(result.errors).to.have.lengthOf(2);
     expect(result.errors[0].message).to.equal('Email must not be exposed');
     expect(result.errors[1].message).to.equal('Email must not be exposed');
-    expect(result.data.user.name).to.equal('Luke Skywalker');
+    // expect(result.data.user.name).to.equal('Luke Skywalker');
+    // Change line 116 to:
+    expect((result.data as any).user.name).to.equal('Luke Skywalker');
   });
 });
