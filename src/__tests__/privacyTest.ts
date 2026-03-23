@@ -24,8 +24,12 @@ describe('GraphQL Privacy & LLM Integration Tests', () => {
           }
         }
       `;
-
-      const result = await graphql({ schema, source: query });
+      // pass an async fieldResover to satisfy the privacy engine's safety check
+      const result = await graphql({ 
+        schema, 
+        source: query,
+        fieldResolver: async (source, _args, _context, info) => source?.[info.fieldName] 
+      });
       expect(result).to.deep.equal({
         data: {
           hero: { name: 'R2-D2' },
@@ -45,8 +49,12 @@ describe('GraphQL Privacy & LLM Integration Tests', () => {
           }
         }
       `;
-
-      const result = await graphql({ schema, source: query });
+      // Pass an async fieldResover here as well
+      const result = await graphql({ 
+        schema,
+        source: query,
+        fieldResolver: async (source, _args, _context, info) => source?.[info.fieldName]
+      });
       expect(result.data?.hero).to.deep.equal({
         id: '2001',
         name: 'R2-D2',

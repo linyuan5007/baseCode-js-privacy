@@ -8,21 +8,27 @@ import { StarWarsSchema } from './starWarsSchema';
 
 // Mock resolver to simulate a privacy violation for email
 const privacyResolvers = {
-  User: {
-    email: () => {
-      throw new Error('Email must not be exposed'); // simulate privacy violation
+  Human: {
+    id: () => {
+      throw new Error('ID must not be exposed'); // simulate privacy violation
     },
     name: () => 'Luke Skywalker',
+  },
+  Droid: {
+    id: () => {
+      throw new Error ('ID must not be exposed');
+    },
+    name: () => 'R2-D2',
   },
 };
 
 describe('Privacy Enforcement Tests', () => {
-  it('blocks exposing email field', async () => {
+  it('blocks exposing id field', async () => {
     const querySource = `
       query {
-        user {
+        hero {
           name
-          email
+          id
         }
       }
     `;
@@ -30,7 +36,8 @@ describe('Privacy Enforcement Tests', () => {
     const result = await graphql({
       schema: StarWarsSchema,
       source: querySource,
-      fieldResolver: (source, args, context, info) => {
+      // ADD 'async' here
+      fieldResolver: async (source, args, context, info) => {
         const typeName = info.parentType.name;
         const fieldName = info.fieldName;
         if (privacyResolvers[typeName]?.[fieldName]) {
@@ -41,13 +48,13 @@ describe('Privacy Enforcement Tests', () => {
     });
 
     expect(result.errors).to.have.lengthOf(1);
-    expect(result.errors[0].message).to.equal('Email must not be exposed');
+    expect(result.errors[0].message).to.equal('ID must not be exposed');
   });
 
   it('allows query with no sensitive data', async () => {
     const querySource = `
       query {
-        user {
+        hero {
           name
         }
       }
@@ -56,7 +63,7 @@ describe('Privacy Enforcement Tests', () => {
     const result = await graphql({
       schema: StarWarsSchema,
       source: querySource,
-      fieldResolver: (source, args, context, info) => {
+      fieldResolver: async (source, args, context, info) => {
         const typeName = info.parentType.name;
         const fieldName = info.fieldName;
         if (privacyResolvers[typeName]?.[fieldName]) {
@@ -68,18 +75,18 @@ describe('Privacy Enforcement Tests', () => {
 
     expect(result.errors).to.equal(undefined);
     expect(result.data).to.deep.equal({
-      user: { name: 'Luke Skywalker' },
+      hero: { name: 'R2-D2' },
     });
   });
 
   it('blocks nested privacy violations in friends', async () => {
     const querySource = `
       query {
-        user {
+        hero {
           name
           friends {
             name
-            email
+            id
           }
         }
       }
@@ -87,11 +94,11 @@ describe('Privacy Enforcement Tests', () => {
 
     // Mock data for friends
     const mockData = {
-      user: {
+      hero: {
         name: 'Luke Skywalker',
         friends: [
-          { name: 'Han Solo', email: 'han@starwars.com' },
-          { name: 'Leia Organa', email: 'leia@starwars.com' },
+          { name: 'Han Solo', id: 'han@starwars.com' },
+          { name: 'Leia Organa', id: 'leia@starwars.com' },
         ],
       },
     };
@@ -100,7 +107,7 @@ describe('Privacy Enforcement Tests', () => {
       schema: StarWarsSchema,
       source: querySource,
       rootValue: mockData,
-      fieldResolver: (source, args, context, info) => {
+      fieldResolver: async (source, args, context, info) => {
         const typeName = info.parentType.name;
         const fieldName = info.fieldName;
         if (privacyResolvers[typeName]?.[fieldName]) {
@@ -110,11 +117,11 @@ describe('Privacy Enforcement Tests', () => {
       },
     });
 
-    expect(result.errors).to.have.lengthOf(2);
-    expect(result.errors[0].message).to.equal('Email must not be exposed');
-    expect(result.errors[1].message).to.equal('Email must not be exposed');
-    // expect(result.data.user.name).to.equal('Luke Skywalker');
+    expect(result.errors).to.have.lengthOf(3);
+    expect(result.errors[0].message).to.equal('ID must not be exposed');
+    expect(result.errors[1].message).to.equal('ID must not be exposed');
+    // expect(result.data.hero.name).to.equal('Luke Skywalker');
     // Change line 116 to:
-    expect((result.data as any).user.name).to.equal('Luke Skywalker');
+    expect((result.data as any).hero.name).to.equal('R2-D2');
   });
 });
