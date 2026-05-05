@@ -7,17 +7,16 @@ import { graphql } from '../graphql';
 import { StarWarsSchema } from './starWarsSchema';
 
 // Mock resolver to simulate a privacy violation for email
+
 const privacyResolvers = {
   Human: {
-    id: () => {
-      throw new Error('ID must not be exposed'); // simulate privacy violation
-    },
+    id: async () => 
+      Promise.reject(new Error('ID must not be exposed')),
     name: () => 'Luke Skywalker',
   },
   Droid: {
-    id: () => {
-      throw new Error ('ID must not be exposed');
-    },
+    id: async () => 
+      Promise.reject(new Error('ID must not be exposed')),
     name: () => 'R2-D2',
   },
 };
@@ -36,8 +35,8 @@ describe('Privacy Enforcement Tests', () => {
     const result = await graphql({
       schema: StarWarsSchema,
       source: querySource,
-      // ADD 'async' here
-      fieldResolver: async (source, args, context, info) => {
+      // ADD 'async' here; removed 'async' here
+      fieldResolver: (source, args, context, info) => {
         const typeName = info.parentType.name;
         const fieldName = info.fieldName;
         if (privacyResolvers[typeName]?.[fieldName]) {
@@ -63,7 +62,7 @@ describe('Privacy Enforcement Tests', () => {
     const result = await graphql({
       schema: StarWarsSchema,
       source: querySource,
-      fieldResolver: async (source, args, context, info) => {
+      fieldResolver: (source, args, context, info) => {
         const typeName = info.parentType.name;
         const fieldName = info.fieldName;
         if (privacyResolvers[typeName]?.[fieldName]) {
@@ -107,7 +106,7 @@ describe('Privacy Enforcement Tests', () => {
       schema: StarWarsSchema,
       source: querySource,
       rootValue: mockData,
-      fieldResolver: async (source, args, context, info) => {
+      fieldResolver: (source, args, context, info) => {
         const typeName = info.parentType.name;
         const fieldName = info.fieldName;
         if (privacyResolvers[typeName]?.[fieldName]) {
