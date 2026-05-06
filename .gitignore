@@ -15,3 +15,4 @@ node_modules
 /websiteDist
 /website/.next
 /website/out
+/.DS_Store
