@@ -62,7 +62,9 @@ describe('Privacy Enforcement Tests', () => {
     const result = await graphql({
       schema: StarWarsSchema,
       source: querySource,
-      fieldResolver: (source, args, context, info) => {
+      fieldResolver: async (source, args, context, info) => {
+        await Promise.resolve();
+
         const typeName = info.parentType.name;
         const fieldName = info.fieldName;
         if (privacyResolvers[typeName]?.[fieldName]) {
@@ -109,6 +111,10 @@ describe('Privacy Enforcement Tests', () => {
       fieldResolver: (source, args, context, info) => {
         const typeName = info.parentType.name;
         const fieldName = info.fieldName;
+        
+        // eslint-disable-next-line no-console, no-undef
+        console.log(info.parentType.name, info.fieldName);
+
         if (privacyResolvers[typeName]?.[fieldName]) {
           return privacyResolvers[typeName][fieldName](source, args, context, info);
         }
@@ -119,8 +125,9 @@ describe('Privacy Enforcement Tests', () => {
     expect(result.errors).to.have.lengthOf(3);
     expect(result.errors[0].message).to.equal('ID must not be exposed');
     expect(result.errors[1].message).to.equal('ID must not be exposed');
-    // expect(result.data.hero.name).to.equal('Luke Skywalker');
-    // Change line 116 to:
+    expect(result.errors[2].message).to.equal('ID must not be exposed');
     expect((result.data as any).hero.name).to.equal('R2-D2');
+    // console.log((result.data as any)?.hero?.name);
+    // console.log(result.errors.map(e => e.message));    map out all error messages
   });
 });
