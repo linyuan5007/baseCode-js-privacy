@@ -20,7 +20,7 @@ export function validateSchemaPrivacy(
         errors.push(
           new GraphQLError(
             `Type "${node.name.value}" is forbidden by privacy rules.`,
-            node
+            { nodes: node}
           )
         );
       }
@@ -48,10 +48,9 @@ export function validateSchemaPrivacy(
       if (similarity !== null) {
         errors.push(
           new GraphQLError(
-            `Field "${fieldName}" is too similar to forbidden field "${forbidden}" (similarity: ${similarity.toFixed(
-              2
-            )}) and may violate privacy rules.`,
-            node
+            `Field "${fieldName}" is too similar to forbidden field "${forbidden}" (similarity: ${similarity.toFixed(2)}) 
+            and may violate privacy rules.`,
+            { nodes: node}
           )
         );
         break;
