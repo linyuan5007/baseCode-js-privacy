@@ -98,13 +98,7 @@ export const healthcareCases = [
     name: 'NRIC blocked for guest',
     role: 'guest',
     domain: 'healthcare',
-    query: `
-      query {
-        patient {
-          nric
-        }
-      }
-    `,
+    query: 'query { patient { nric } }',
     rootValue: {
       patient: {
         nric: 'S7654321B',
@@ -114,24 +108,18 @@ export const healthcareCases = [
   },
 
   {
-  name: 'NRIC masked for receptionist',
-  role: 'receptionist',
-  domain: 'healthcare',
-  purpose: 'identity_verification',
-  query: `
-    query {
-      patient {
-        nric
-      }
-    }
-  `,
-  rootValue: {
-    patient: {
-      nric: 'S1234567A',
+    name: 'NRIC masked for receptionist',
+    role: 'receptionist',
+    domain: 'healthcare',
+    purpose: 'identity_verification',
+    query: 'query { patient { nric } }',
+    rootValue: {
+      patient: {
+        nric: 'S1234567A',
+      },
     },
+    expectedBlocked: false,
   },
-  expectedBlocked: false,
-},
 
   {
     name: 'Notes masked by LLM',
@@ -191,6 +179,34 @@ export const healthcareCases = [
   },
 
   {
+    name: 'NRIC allowed for billing with identity verification purpose',
+    role: 'billing',
+    domain: 'healthcare',
+    purpose: 'identity_verification',
+    query: 'query { patient { nric } }',
+    rootValue: {
+      patient: {
+        nric: 'S7654321B',
+      },
+    },
+    expectedBlocked: false,
+  },
+
+  {
+    name: 'NRIC blocked for billing with marketing purpose',
+    role: 'billing',
+    domain: 'healthcare',
+    purpose: 'marketing',
+    query: 'query { patient { nric } }',
+    rootValue: {
+      patient: {
+        nric: 'S7654321B',
+      },
+    },
+    expectedBlocked: true,
+  },
+
+  {
     name: 'NRIC masked for billing purpose',
     role: 'billing',
     domain: 'healthcare',
@@ -205,25 +221,48 @@ export const healthcareCases = [
   },
 
   {
-  name: 'NRIC blocked for billing with marketing purpose',
-  role: 'billing',
-  domain: 'healthcare',
-  purpose: 'marketing',
-
-  query: `
-    query {
-      patient {
-        nric
-      }
-    }
-  `,
-
-  rootValue: {
-    patient: {
-      nric: 'S7654321B',
+    name: 'Hidden sensitive data in notes',
+    role: 'receptionist',
+    domain: 'healthcare',
+    query: `
+        query {
+          patient {
+            name
+            notes
+            appointmentDate
+          }
+        }
+      `,
+    rootValue: {
+      patient: {
+        name: 'John Doe',
+        notes: 'Patient NRIC is S1234567A and phone is 91234567',
+        appointmentDate: '2026-05-20',
+      },
     },
+    expectedBlocked: false,
   },
 
-  expectedBlocked: true,
-}
+  {
+    name: 'Structured sensitive fields',
+    role: 'guest',
+    domain: 'healthcare',
+    query: `
+        query {
+          patient {
+            name
+            diagnosis
+            nric
+          }
+        }
+      `,
+    rootValue: {
+      patient: {
+        name: 'Alice',
+        diagnosis: 'Cancer',
+        nric: 'S7654321B',
+      },
+    },
+    expectedBlocked: true,
+  },
 ];

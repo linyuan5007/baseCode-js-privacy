@@ -31,6 +31,8 @@ export const privacyPolicyDSL = {
         action: {
           type: 'mask',
           maskStrategy: 'last4',
+          exceptPurposes: ['identity_verification'],
+          exceptRoles: ['doctor', 'nurse', 'billing'],
         },
       },
 
