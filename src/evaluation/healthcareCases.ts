@@ -265,4 +265,32 @@ export const healthcareCases = [
     },
     expectedBlocked: true,
   },
+
+  {
+    name: 'Structured and unstructured sensitive fields',
+    role: 'doctor',
+    domain: 'healthcare',
+    purpose: 'identity_verification',
+    query: `
+    query {
+      patient {
+        name
+        nric
+        diagnosis
+        notes
+        medication
+      }
+    }
+  `,
+    rootValue: {
+      patient: {
+        name: 'Alice',
+        nric: 'S7654321B',
+        diagnosis: 'Cancer',
+        notes: 'Patient phone number is 91234567',
+        medication: 'Paracetamol',
+      },
+    },
+    expectedBlocked: false,
+  }
 ];

@@ -143,6 +143,23 @@ export async function checkPrivacy(
         console.log('LLM result:', llmResult);
 
         if (llmResult.violated) {
+            const clinicalRoles = ['doctor', 'nurse'];
+            
+            if (clinicalRoles.includes(role)) {
+                logPrivacyEvent({
+                    field: fieldName,
+                    role,
+                    action: 'llm_allowed_for_clinical_role',
+                });
+                
+                return {
+                    blocked: false,
+                    masked: false,
+                    action: 'allow',
+                    reason: `LLM detected sensitive content, but role ${role} is allowed to view clinical notes`,
+                    enforcementSource: 'RBAC',
+                };
+            }
             const maskedValue = maskValue(
                 value,
                 rule.action?.maskStrategy || 'full'
