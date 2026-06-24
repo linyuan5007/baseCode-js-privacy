@@ -1,5 +1,6 @@
 import { defaultFieldResolver } from '../execution/execute';
 
+import { healthcareRootValue } from '../config/healthcareRootValue';
 import { graphql } from '../graphql';
 
 import { checkPrivacy } from './checkPrivacy';
@@ -11,7 +12,7 @@ export async function runPrivacyTest(
   return graphql({
     schema,
     source: test.query,
-    rootValue: test.rootValue,
+    rootValue: test.rootValue ?? healthcareRootValue,
 
     fieldResolver: async (
       source,

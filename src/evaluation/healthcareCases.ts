@@ -268,9 +268,9 @@ export const healthcareCases = [
 
   {
     name: 'Structured and unstructured sensitive fields',
-    role: 'doctor',
+    role: 'billing',
     domain: 'healthcare',
-    purpose: 'identity_verification',
+    purpose: 'billing',
     query: `
     query {
       patient {
@@ -291,6 +291,6 @@ export const healthcareCases = [
         medication: 'Paracetamol',
       },
     },
-    expectedBlocked: false,
+    expectedBlocked: true,
   }
 ];

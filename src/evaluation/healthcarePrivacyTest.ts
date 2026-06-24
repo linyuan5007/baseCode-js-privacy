@@ -4,7 +4,13 @@ import { describe, it } from 'mocha';
 import { healthcareSchema } from '../config/healthcareSchema';
 
 import { healthcareCases } from './healthcareCases';
+import { healthcareMutationCases } from './healthcareMutationCases';
 import { runPrivacyTest } from './runPrivacyTest';
+
+const allCases = [
+//  ...healthcareCases,
+  ...healthcareMutationCases,
+];
 
 describe('Healthcare Privacy Tests', function () {
   this.timeout(120000);
@@ -12,7 +18,7 @@ describe('Healthcare Privacy Tests', function () {
   it('runs all healthcare privacy tests', async () => {
     let correct = 0;
 
-    for (const [index, test] of healthcareCases.entries()) {
+    for (const [index, test] of allCases.entries()) {
       console.log(`\n===== ${test.name} =====`);
 
       // const decisions: any[] = []; to be improved further
@@ -46,11 +52,11 @@ describe('Healthcare Privacy Tests', function () {
     }
 
     console.log(
-      `Accuracy: ${correct}/${healthcareCases.length}`
+      `Accuracy: ${correct}/${allCases.length}`
     );
 
     expect(correct).to.equal(
-      healthcareCases.length
+      allCases.length
     );
   });
 });
