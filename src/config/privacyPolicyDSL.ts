@@ -1,8 +1,22 @@
 export const privacyPolicyDSL = {
   healthcare: {
     domain: 'healthcare',
-
     rules: [
+      {
+        id: 'HC-000',
+        description: 'Block patient name for unauthorized users',
+        match: {
+          fields: ['name'],
+        },
+        condition: {
+          rolesAllowed: ['doctor', 'nurse', 'billing', 'receptionist'],
+        },
+        action: {
+          type: 'block',
+          error: 'Patient name cannot be exposed to this user role.',
+        },
+      },
+
       {
         id: 'HC-001',
         description: 'Block medical data for non-clinical users',
@@ -41,6 +55,9 @@ export const privacyPolicyDSL = {
         description: 'Use LLM to inspect free-text healthcare fields',
         match: {
           fields: ['notes', 'message', 'comment', 'remarks'],
+        },
+        condition: {
+          rolesAllowed: ['doctor', 'nurse', 'billing', 'receptionist'],
         },
         action: {
           type: 'llm_check',

@@ -110,7 +110,7 @@ export async function checkPrivacy(
         Array.isArray(rule.action?.exceptRoles) &&
         rule.action.exceptRoles.includes(role);
 
-        if (bypassMaskByPurpose) {
+    if (bypassMaskByPurpose) {
         logPrivacyEvent({
             field: fieldName,
             role,
@@ -144,14 +144,14 @@ export async function checkPrivacy(
 
         if (llmResult.violated) {
             const clinicalRoles = ['doctor', 'nurse'];
-            
+
             if (clinicalRoles.includes(role)) {
                 logPrivacyEvent({
                     field: fieldName,
                     role,
                     action: 'llm_allowed_for_clinical_role',
                 });
-                
+
                 return {
                     blocked: false,
                     masked: false,

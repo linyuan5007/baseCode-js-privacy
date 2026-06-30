@@ -1,4 +1,4 @@
-export const healthcareRootValue = {
+export const healthcareMutationRootValue = {
   patient: {
     name: 'Alice',
     notes: 'Initial notes',
@@ -22,3 +22,5 @@ export const healthcareRootValue = {
     nric,
   }),
 };
+
+

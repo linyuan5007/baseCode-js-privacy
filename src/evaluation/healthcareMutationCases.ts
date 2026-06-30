@@ -1,3 +1,5 @@
+import { healthcareMutationRootValue } from '../config/healthcareMutationRootValue';
+
 export const healthcareMutationCases = [
   {
     name: 'Diagnosis update blocked for guest',
@@ -10,6 +12,7 @@ export const healthcareMutationCases = [
         }
       }
     `,
+    rootValue: healthcareMutationRootValue,
     expectedBlocked: true,
   },
 
@@ -24,6 +27,7 @@ export const healthcareMutationCases = [
         }
       }
     `,
+    rootValue: healthcareMutationRootValue,
     expectedBlocked: false,
   },
 
@@ -38,6 +42,7 @@ export const healthcareMutationCases = [
         }
       }
     `,
+    rootValue: healthcareMutationRootValue,
     expectedBlocked: false,
   },
 
@@ -53,6 +58,8 @@ export const healthcareMutationCases = [
         }
       }
     `,
+    rootValue: healthcareMutationRootValue,
     expectedBlocked: true,
   },
 ];
+

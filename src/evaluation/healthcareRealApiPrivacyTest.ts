@@ -10,25 +10,24 @@ import { describe, it } from 'mocha';
 
 import { healthcareSchema } from '../config/healthcareSchema';
 
-import { healthcareMutationCases } from './healthcareMutationCases';
-import { healthcareQueryCases } from './healthcareQueryCases';
+import { healthcareRealApiMutationCases } from './healthcareRealApiMutationCases';
+import { healthcareRealApiQueryCases } from './healthcareRealApiQueryCases';
 import { runPrivacyTest } from './runPrivacyTest';
 
 const allCases = [
-//  ...healthcareQueryCases,
-  ...healthcareMutationCases,
+//  ...healthcareRealApiQueryCases,
+  ...healthcareRealApiMutationCases,
 ];
 
-describe('Healthcare Privacy Tests', function () {
+describe('Healthcare Real API Privacy Tests', function () {
   this.timeout(120000);
 
-  it('runs all healthcare privacy tests', async () => {
+  it('runs all healthcare real API privacy tests', async () => {
     let correct = 0;
 
     for (const [index, test] of allCases.entries()) {
       console.log(`\n===== ${index + 1}. ${test.name} =====`);
 
-      // const decisions: any[] = []; to be improved further
       const result = await runPrivacyTest(
         healthcareSchema,
         test

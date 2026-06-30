@@ -1,7 +1,7 @@
 {
   "include": ["src", "src/__test__"],
   "compilerOptions": {
-    "types": ["jest", "node"],
+    "types": ["mocha", "node"],
     "target": "ES2020",
     "lib": ["ES2020", "DOM"],
 

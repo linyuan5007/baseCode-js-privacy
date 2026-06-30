@@ -1,4 +1,4 @@
-export const healthcareCases = [
+export const healthcareQueryCases = [
   {
     name: 'Diagnosis blocked for guest',
     role: 'guest',
@@ -142,7 +142,7 @@ export const healthcareCases = [
 
   {
     name: 'Message masked by LLM',
-    role: 'guest',
+    role: 'receptionist',
     domain: 'healthcare',
     query: `
       query {
