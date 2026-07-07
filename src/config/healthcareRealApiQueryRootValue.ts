@@ -1,7 +1,7 @@
 import { fetchRealPatient } from '../evaluation/realFHIRClient';
 
-export const healthcareRealApiQueryRootValue = {
-  patient: async () => {
-    return fetchRealPatient(1);
-  },
-};
+export function healthcareRealApiQueryRootValue(index: number) {
+  return {
+    patient: async () => fetchRealPatient(index),
+  };
+}

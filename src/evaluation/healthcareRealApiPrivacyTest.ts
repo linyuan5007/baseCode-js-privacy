@@ -15,8 +15,8 @@ import { healthcareRealApiQueryCases } from './healthcareRealApiQueryCases';
 import { runPrivacyTest } from './runPrivacyTest';
 
 const allCases = [
-//  ...healthcareRealApiQueryCases,
-  ...healthcareRealApiMutationCases,
+  ...healthcareRealApiQueryCases,
+//  ...healthcareRealApiMutationCases,
 ];
 
 describe('Healthcare Real API Privacy Tests', function () {

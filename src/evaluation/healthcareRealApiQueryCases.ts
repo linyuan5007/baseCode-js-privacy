@@ -1,55 +1,60 @@
 import { healthcareRealApiQueryRootValue } from '../config/healthcareRealApiQueryRootValue';
 
-export const healthcareRealApiQueryCases = [
+const scenarios = [
   {
-    name: 'Billing user',
-    domain: 'healthcare',
     role: 'billing',
     purpose: 'identity_verification',
-    query: `
-      query {
-        patient {
-          name
-          nric
-          diagnosis
-          notes
-        }
-      }
-    `,
-    rootValue: healthcareRealApiQueryRootValue,
-    expectedBlocked: true,
+    expectedBlocked: true, // diagnosis is blocked for billing
   },
-
   {
-    name: 'Doctor',
-    domain: 'healthcare',
     role: 'doctor',
-    purpose: 'treatment',
-    query: `
-      query {
-        patient {
-          name
-          diagnosis
-        }
-      }
-    `,
-    rootValue: healthcareRealApiQueryRootValue,
-    expectedBlocked: false,
+    purpose: 'identity_verification',
+    expectedBlocked: false, // doctor can access diagnosis
   },
-
   {
-    name: 'Guest',
-    domain: 'healthcare',
+    role: 'nurse',
+    purpose: 'treatment',
+    expectedBlocked: true, // nurse can access diagnosis
+  },
+  {
     role: 'guest',
     purpose: 'research',
-    query: `
-      query {
-        patient {
-          diagnosis
-        }
-      }
-    `,
-    rootValue: healthcareRealApiQueryRootValue,
-    expectedBlocked: true,
+    expectedBlocked: true, // guest cannot access diagnosis
+  },
+  {
+    role: 'receptionist',
+    purpose: 'appointment',
+    expectedBlocked: true, // diagnosis is blocked for receptionist
+  },
+  {
+    role: 'billing',
+    purpose: 'marketing',
+    expectedBlocked: true, // nric or diagnosis should be blocked
   },
 ];
+
+export const healthcareRealApiQueryCases = Array.from(
+  { length: 5 },
+  (_, index) => {
+    const scenario = scenarios[index % scenarios.length];
+
+    return {
+      name: `Real API ${scenario.role} test patient ${index + 1}`,
+      domain: 'healthcare',
+      role: scenario.role,
+      purpose: scenario.purpose,
+      query: `
+        query {
+          patient {
+            name
+            nric
+            diagnosis
+            notes
+          }
+        }
+      `,
+      rootValue: healthcareRealApiQueryRootValue(index),
+      expectedBlocked: scenario.expectedBlocked,
+    };
+  }
+);

@@ -1,14 +1,9 @@
 /* eslint-env browser */
+/* eslint-disable @typescript-eslint/no-throw-literal */
 
-let cachedPatients: any[] | null = null;
-
-async function fetchPatientBundle(count = 5) {
-  if (cachedPatients) {
-    return cachedPatients;
-  }
-
-  const response = await fetch(
-    `https://hapi.fhir.org/baseR4/Patient?_count=${count}`,
+export async function fetchRealPatient(index = 0) {
+  const patientResponse = await fetch(
+    'https://hapi.fhir.org/baseR4/Patient?_count=10',
     {
       headers: {
         Accept: 'application/fhir+json',
@@ -16,29 +11,20 @@ async function fetchPatientBundle(count = 5) {
     }
   );
 
-  if (!response.ok) {
-    throw new Error(`FHIR Patient API failed: ${response.status}`);
+  if (!patientResponse.ok) {
+    throw new Error(`FHIR Patient API failed: ${patientResponse.status}`);
   }
 
-  const bundle = await response.json();
-
-  cachedPatients =
-    bundle.entry?.map((entry: any) => entry.resource) ?? [];
-
-  return cachedPatients;
-}
-
-export async function fetchRealPatient(index = 0) {
-  const patients = await fetchPatientBundle(5);
-  const patient = patients[index];
+  const patientBundle = await patientResponse.json();
+  const patient = patientBundle.entry?.[index]?.resource;
 
   if (!patient) {
     throw new Error(`No patient found at index ${index}`);
   }
 
-  const patientId = patient.id;
+  const patientId = patient?.id;
 
-  const nameObj = patient.name?.[0];
+  const nameObj = patient?.name?.[0];
 
   const generatedName = `${nameObj?.given?.join(' ') ?? ''} ${
     nameObj?.family ?? ''
@@ -71,10 +57,10 @@ export async function fetchRealPatient(index = 0) {
 
   return {
     name,
-    nric: patient.identifier?.[0]?.value ?? 'Unknown',
+    nric: patient?.identifier?.[0]?.value ?? 'Unknown',
     diagnosis,
     notes:
-      patient.text?.div?.replace(/<[^>]*>/g, '') ??
+      patient?.text?.div?.replace(/<[^>]*>/g, '') ??
       'No clinical note available',
   };
 }
