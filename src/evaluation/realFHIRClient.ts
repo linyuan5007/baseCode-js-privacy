@@ -1,35 +1,81 @@
 /* eslint-env browser */
+/* eslint-disable @typescript-eslint/no-throw-literal */
 
-let cachedPatients: any[] | null = null;
+interface FhirPatient {
+  id?: string;
+  name?: Array<any>;
+  identifier?: Array<any>;
+  text?: {
+    div?: string;
+  };
+}
 
-async function fetchPatientBundle(count = 5) {
-  if (cachedPatients) {
-    return cachedPatients;
+let cachedPatientsPromise: Promise<Array<FhirPatient>> | null = null;
+const cachedConditionPromises = new Map<string, Promise<string>>();
+
+async function fetchPatientBundle(count = 200): Promise<Array<FhirPatient>> {
+  if (cachedPatientsPromise !== null) {
+    return cachedPatientsPromise;
   }
 
-  const response = await fetch(
-    `https://hapi.fhir.org/baseR4/Patient?_count=${count}`,
-    {
-      headers: {
-        Accept: 'application/fhir+json',
-      },
+  cachedPatientsPromise = (async () => {
+    const response = await fetch(
+      `https://hapi.fhir.org/baseR4/Patient?_count=${count}`,
+      {
+        headers: {
+          Accept: 'application/fhir+json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`FHIR Patient API failed: ${response.status}`);
     }
-  );
 
-  if (!response.ok) {
-    throw new Error(`FHIR Patient API failed: ${response.status}`);
+    const bundle = await response.json();
+
+    return bundle.entry?.map((entry: any) => entry.resource) ?? [];
+  })();
+
+  return cachedPatientsPromise;
+}
+
+async function fetchConditionForPatient(patientId: string): Promise<string> {
+  if (cachedConditionPromises.has(patientId)) {
+    return cachedConditionPromises.get(patientId) ?? Promise.resolve('Unknown');
   }
 
-  const bundle = await response.json();
+  const conditionPromise = (async () => {
+    const response = await fetch(
+      `https://hapi.fhir.org/baseR4/Condition?patient=${patientId}&_count=1`,
+      {
+        headers: {
+          Accept: 'application/fhir+json',
+        },
+      }
+    );
 
-  cachedPatients =
-    bundle.entry?.map((entry: any) => entry.resource) ?? [];
+    if (!response.ok) {
+      return 'Unknown';
+    }
 
-  return cachedPatients;
+    const bundle = await response.json();
+    const condition = bundle.entry?.[0]?.resource;
+
+    return (
+      condition?.code?.text ||
+      condition?.code?.coding?.[0]?.display ||
+      'Unknown'
+    );
+  })();
+
+  cachedConditionPromises.set(patientId, conditionPromise);
+
+  return conditionPromise;
 }
 
 export async function fetchRealPatient(index = 0) {
-  const patients = await fetchPatientBundle(5);
+  const patients = await fetchPatientBundle(200);
   const patient = patients[index];
 
   if (!patient) {
@@ -46,28 +92,9 @@ export async function fetchRealPatient(index = 0) {
 
   const name = nameObj?.text || generatedName || 'Unknown';
 
-  let diagnosis = 'Unknown';
-
-  if (patientId) {
-    const conditionResponse = await fetch(
-      `https://hapi.fhir.org/baseR4/Condition?patient=${patientId}&_count=1`,
-      {
-        headers: {
-          Accept: 'application/fhir+json',
-        },
-      }
-    );
-
-    if (conditionResponse.ok) {
-      const conditionBundle = await conditionResponse.json();
-      const condition = conditionBundle.entry?.[0]?.resource;
-
-      diagnosis =
-        condition?.code?.text ||
-        condition?.code?.coding?.[0]?.display ||
-        'Unknown';
-    }
-  }
+  const diagnosis = patientId
+    ? await fetchConditionForPatient(patientId)
+    : 'Unknown';
 
   return {
     name,
@@ -78,3 +105,4 @@ export async function fetchRealPatient(index = 0) {
       'No clinical note available',
   };
 }
+

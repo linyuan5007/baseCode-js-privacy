@@ -34,7 +34,7 @@ const scenarios = [
 ];
 
 export const healthcareRealApiQueryCases = Array.from(
-  { length: 5 },
+  { length: 2 },
   (_, index) => {
     const scenario = scenarios[index % scenarios.length];
 

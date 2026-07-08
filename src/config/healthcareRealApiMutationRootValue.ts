@@ -1,30 +1,32 @@
 import { fetchRealPatient } from '../evaluation/realFHIRClient';
 
-export const healthcareRealApiMutationRootValue = {
-  updatePatientDiagnosis: async ({ diagnosis }: any) => {
-    const patient = await fetchRealPatient();
+export function healthcareRealApiMutationRootValue(index: number) {
+  return {
+    updatePatientDiagnosis: async ({ diagnosis }: any) => {
+      const patient = await fetchRealPatient(index);
 
-    return {
-      ...patient,
-      diagnosis,
-    };
-  },
+      return {
+        ...patient,
+        diagnosis,
+      };
+    },
 
-  updatePatientNotes: async ({ notes }: any) => {
-    const patient = await fetchRealPatient();
+    updatePatientNotes: async ({ notes }: any) => {
+      const patient = await fetchRealPatient(index);
 
-    return {
-      ...patient,
-      notes,
-    };
-  },
+      return {
+        ...patient,
+        notes,
+      };
+    },
 
-  updatePatientNric: async ({ nric }: any) => {
-    const patient = await fetchRealPatient();
+    updatePatientNric: async ({ nric }: any) => {
+      const patient = await fetchRealPatient(index);
 
-    return {
-      ...patient,
-      nric,
-    };
-  },
-};
+      return {
+        ...patient,
+        nric,
+      };
+    },
+  };
+}
