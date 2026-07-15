@@ -1,6 +1,17 @@
 import { buildSchema } from '../utilities/buildASTSchema';
 
 export const healthcareSchema = buildSchema(`
+  type Doctor {
+    name: String
+    department: String
+  }
+
+  type Appointment {
+    appointmentDate: String
+    notes: String
+    doctor: Doctor
+  }
+
   type Patient {
     name: String
     notes: String
@@ -12,6 +23,8 @@ export const healthcareSchema = buildSchema(`
     testResult: String
     medicalHistory: String
     message: String
+
+    appointments: [Appointment]
   }
 
   type Query {

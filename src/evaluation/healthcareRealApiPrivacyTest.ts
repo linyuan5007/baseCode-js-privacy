@@ -19,6 +19,36 @@ const allCases = [
 //  ...healthcareRealApiMutationCases,
 ];
 
+type PrivacyAction = 'allow' | 'mask' | 'block';
+
+function getActualAction(
+  result: any,
+  field: string
+): PrivacyAction {
+  const fieldWasBlocked =
+    result.errors?.some(
+      (error: any) =>
+        error.path?.[error.path.length - 1] === field
+    ) ?? false;
+
+  if (fieldWasBlocked) {
+    return 'block';
+  }
+
+  const value = result.data?.patient?.[field];
+
+  const fieldWasMasked =
+    value === '***MASKED***' ||
+    (typeof value === 'string' &&
+      value.startsWith('*****'));
+
+  if (fieldWasMasked) {
+    return 'mask';
+  }
+
+  return 'allow';
+}
+
 describe('Healthcare Real API Privacy Tests', function () {
   this.timeout(120000);
 
@@ -36,23 +66,21 @@ describe('Healthcare Real API Privacy Tests', function () {
       console.log('GraphQL result:');
       console.log(JSON.stringify(result, null, 2));
 
-      const blocked =
-        result.errors?.some((error) =>
-          error.message.includes('not allowed') ||
-          error.message.includes('cannot be exposed') ||
-          error.message.includes('Privacy violation')
-        ) ?? false;
+      const actualAction = getActualAction(
+        result,
+        test.field
+      );
 
       const isCorrect =
-        blocked === test.expectedBlocked;
+        actualAction === test.expectedAction;
 
       if (isCorrect) {
         correct++;
       }
 
       console.log({
-        expected: test.expectedBlocked,
-        actual: blocked,
+        expectedActionResult: test.expectedAction,
+        actualActionResult: actualAction,
         correct: isCorrect,
       });
     }

@@ -1,60 +1,80 @@
 import { healthcareRealApiQueryRootValue } from '../config/healthcareRealApiQueryRootValue';
 
-const scenarios = [
+type ExpectedAction = 'allow' | 'mask' | 'block';
+
+interface RealApiQueryScenario {
+  name: string;
+  field: string;
+  role: string;
+  purpose: string;
+  expectedAction: ExpectedAction;
+}
+
+const scenarios: Array<RealApiQueryScenario> = [
   {
+    name: 'NRIC allowed for billing identity verification',
+    field: 'nric',
     role: 'billing',
     purpose: 'identity_verification',
-    expectedBlocked: true, // diagnosis is blocked for billing
+    expectedAction: 'allow',
   },
   {
+    name: 'Diagnosis allowed for doctor',
+    field: 'diagnosis',
     role: 'doctor',
-    purpose: 'identity_verification',
-    expectedBlocked: false, // doctor can access diagnosis
+    purpose: 'treatment',
+    expectedAction: 'allow',
   },
   {
+    name: 'Diagnosis allowed for nurse',
+    field: 'diagnosis',
     role: 'nurse',
     purpose: 'treatment',
-    expectedBlocked: true, // nurse can access diagnosis
+    expectedAction: 'allow',
   },
   {
+    name: 'Diagnosis blocked for guest',
+    field: 'diagnosis',
     role: 'guest',
     purpose: 'research',
-    expectedBlocked: true, // guest cannot access diagnosis
+    expectedAction: 'block',
   },
   {
+    name: 'Diagnosis blocked for receptionist',
+    field: 'diagnosis',
     role: 'receptionist',
     purpose: 'appointment',
-    expectedBlocked: true, // diagnosis is blocked for receptionist
+    expectedAction: 'block',
   },
   {
+    name: 'NRIC blocked for billing marketing purpose',
+    field: 'nric',
     role: 'billing',
     purpose: 'marketing',
-    expectedBlocked: true, // nric or diagnosis should be blocked
+    expectedAction: 'block',
   },
 ];
 
 export const healthcareRealApiQueryCases = Array.from(
-  { length: 2 },
+  { length: 5 },
   (_, index) => {
     const scenario = scenarios[index % scenarios.length];
 
     return {
-      name: `Real API ${scenario.role} test patient ${index + 1}`,
+      name: `Real API ${scenario.name} - patient ${index + 1}`,
       domain: 'healthcare',
       role: scenario.role,
       purpose: scenario.purpose,
+      field: scenario.field,
       query: `
         query {
           patient {
-            name
-            nric
-            diagnosis
-            notes
+            ${scenario.field}
           }
         }
       `,
       rootValue: healthcareRealApiQueryRootValue(index),
-      expectedBlocked: scenario.expectedBlocked,
+      expectedAction: scenario.expectedAction,
     };
   }
 );
