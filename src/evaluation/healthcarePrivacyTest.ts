@@ -15,8 +15,8 @@ import { healthcareQueryCases } from './healthcareQueryCases';
 import { runPrivacyTest } from './runPrivacyTest';
 
 const allCases = [
-//  ...healthcareQueryCases,
-  ...healthcareMutationCases,
+  ...healthcareQueryCases,
+//  ...healthcareMutationCases,
 ];
 
 describe('Healthcare Privacy Tests', function () {

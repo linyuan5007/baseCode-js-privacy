@@ -56,7 +56,7 @@ const scenarios: Array<RealApiQueryScenario> = [
 ];
 
 export const healthcareRealApiQueryCases = Array.from(
-  { length: 5 },
+  { length: 200 },
   (_, index) => {
     const scenario = scenarios[index % scenarios.length];
 

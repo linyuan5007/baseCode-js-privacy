@@ -41,12 +41,12 @@ export const privacyPolicyDSL = {
         condition: {
           rolesAllowed: ['doctor', 'nurse', 'billing', 'receptionist'],
           purposesAllowed: ['identity_verification', 'billing'],
+          rolesAllowedUnmasked: ['doctor', 'nurse', 'billing'],
+          purposesAllowedUnmasked: ['identity_verification'],
         },
         action: {
           type: 'mask',
           maskStrategy: 'last4',
-          exceptPurposes: ['identity_verification'],
-          exceptRoles: ['doctor', 'nurse', 'billing'],
         },
       },
 
@@ -58,6 +58,7 @@ export const privacyPolicyDSL = {
         },
         condition: {
           rolesAllowed: ['doctor', 'nurse', 'billing', 'receptionist'],
+          rolesAllowedUnmasked: ['doctor', 'nurse'],
         },
         action: {
           type: 'llm_check',

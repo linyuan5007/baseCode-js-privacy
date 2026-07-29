@@ -268,7 +268,7 @@ export const healthcareQueryCases = [
 
   {
     name: 'Structured and unstructured sensitive fields',
-    role: 'billing',
+    role: 'guest',
     domain: 'healthcare',
     purpose: 'billing',
     query: `
@@ -288,6 +288,34 @@ export const healthcareQueryCases = [
         nric: 'S7654321B',
         diagnosis: 'Cancer',
         notes: 'Patient phone number is 91234567',
+        medication: 'Paracetamol',
+      },
+    },
+    expectedBlocked: true,
+  },
+
+    {
+    name: 'Structured and unstructured sensitive fields 2',
+    role: 'guest',
+    domain: 'healthcare',
+    purpose: 'billing',
+    query: `
+    query {
+      patient {
+        name
+        nric
+        diagnosis
+        notes
+        medication
+      }
+    }
+  `,
+    rootValue: {
+      patient: {
+        name: 'Alice',
+        nric: 'S7654321B',
+        diagnosis: 'Cancer',
+        notes: 'Patient need to come for follow up appointment',
         medication: 'Paracetamol',
       },
     },

@@ -51,9 +51,6 @@ export async function checkPrivacy(
         r.match?.fields.includes(fieldName)
     );
 
-    /*
-    * No policy rule applies to this field. 
-    */
     if (!rule) {
         return {
             blocked: false,
@@ -64,16 +61,10 @@ export async function checkPrivacy(
         };
     }
 
-    /*
-    * RBAC:
-    * rolesAllowed means roles that may access the field.
-    * This check now applies to all rule types, including llm_check.
-    */
-    const rolesAllowed = rule.condition?.rolesAllowed;
-
     const blockedByRole =
-        Array.isArray(rolesAllowed) &&
-        !rolesAllowed.includes(role);
+        rule.action?.type !== 'llm_check' &&
+        Array.isArray(rule.condition?.rolesAllowed) &&
+        !rule.condition.rolesAllowed.includes(role);
 
     if (blockedByRole) {
         logPrivacyEvent({
@@ -92,17 +83,10 @@ export async function checkPrivacy(
             enforcementSource: 'RBAC',
         };
     }
-    /*
-    * PBAC:
-    * block when a purposeAllowed list exists and the 
-    * current purpose is not included.
-    */
-    const purposesAllowed =
-        rule.condition?.purposesAllowed;
 
     const blockedByPurpose =
-        Array.isArray(purposesAllowed ) &&
-        !purposesAllowed.includes(purpose);
+        Array.isArray(rule.condition?.purposesAllowed) &&
+        !rule.condition.purposesAllowed.includes(purpose);
 
     if (blockedByPurpose) {
         logPrivacyEvent({
@@ -121,21 +105,11 @@ export async function checkPrivacy(
         };
     }
 
-    /*
-     * PBAC exception:
-     * A matching role and purpose may bypass masking.
-     */
-    const rolesAllowedUnmasked = 
-        rule.condition?.rolesAllowedUnmasked ?? [];
-
-    const purposesAllowedUnmasked = 
-        rule.condition?.purposesAllowedUnmasked ?? [];
-
     const bypassMaskByPurpose =
-        Array.isArray(purposesAllowedUnmasked) &&
-       purposesAllowedUnmasked.includes(purpose) &&
-        Array.isArray(rolesAllowedUnmasked) &&
-        rolesAllowedUnmasked.includes(role);
+        Array.isArray(rule.action?.exceptPurposes) &&
+        rule.action.exceptPurposes.includes(purpose) &&
+        Array.isArray(rule.action?.exceptRoles) &&
+        rule.action.exceptRoles.includes(role);
 
     if (bypassMaskByPurpose) {
         logPrivacyEvent({
@@ -154,9 +128,6 @@ export async function checkPrivacy(
         };
     }
 
-    /*
-     * LLM privacy inspection for unstructured text.
-     */
     if (rule.action?.type === 'llm_check') {
         const llmResult = await checker.check(
             {
@@ -172,77 +143,58 @@ export async function checkPrivacy(
 
         console.log('LLM result:', llmResult);
 
-        /*
-         * No sensitive content was detected.
-         *
-         * The role has already passed the RBAC check,
-         * so the field can be returned normally.
-         */
+        if (llmResult.violated) {
+            const rolesAllowed = rule.condition?.rolesAllowed ?? [];
 
-        if (!llmResult.violated) {
+            if (rolesAllowed.includes(role)) {
+                logPrivacyEvent({
+                    field: fieldName,
+                    role,
+                    action: 'llm_allowed_by_role',
+                });
+
+                return {
+                    blocked: false,
+                    masked: false,
+                    action: 'allow',
+                    reason: `LLM detected sensitive content, but role ${role} is allowed by the privacy policy`,
+                    enforcementSource: 'RBAC',
+                };
+            }
+            const maskedValue = maskValue(
+                value,
+                rule.action?.maskStrategy || 'full'
+            );
+
+            logPrivacyEvent({
+                field: fieldName,
+                role,
+                action: 'llm_masked',
+            });
+
             return {
                 blocked: false,
-                masked: false,
-                action: 'allow',
+                masked: true,
+                maskedValue,
+                action: 'mask',
                 reason: llmResult.reason,
                 enforcementSource: 'LLM',
             };
         }
 
-        /*
-         * Sensitive content was detected.
-         *
-         * rolesAllowedUnmasked specifies which authorized
-         * roles may still see the original value.
-         */
-        if (rolesAllowedUnmasked.includes(role)) {
-            logPrivacyEvent({
-                field: fieldName,
-                role,
-                action: 'llm_sensitive_allowed_unmasked',
-            });
-
-            return {
-                blocked: false,
-                masked: false,
-                action: 'allow',
-                reason: `LLM detected sensitive content, but role ${role} is permitted to view it unmasked`,
-                enforcementSource: 'RBAC',
-            };
-        }
-
-        /*
-         * The role may access the field but is not allowed 
-         * to see sensitive content unmasked.
-         */
-        const maskedValue = maskValue(
-            value,
-            rule.action?.maskStrategy ?? 'full'
-        );
-
-        logPrivacyEvent({
-            field: fieldName,
-            role,
-            action: 'llm_masked',
-        });
-
         return {
             blocked: false,
-            masked: true,
-            maskedValue,
-            action: 'mask',
+            masked: false,
+            action: 'allow',
             reason: llmResult.reason,
             enforcementSource: 'LLM',
         };
     }
 
-    /*
-     * Static masking rule.
-     */
     if (rule.action?.type === 'mask') {
         const maskedValue = maskValue(
             value,
-            rule.action?.maskStrategy ?? 'full'
+            rule.action?.maskStrategy || 'full'
         );
 
         logPrivacyEvent({
@@ -262,18 +214,14 @@ export async function checkPrivacy(
         };
     }
 
-    /*
-     * The role and purpose checks passed and no masking
-     * or LLM action was triggered.
-     */
     return {
         blocked: false,
         masked: false,
         action: 'allow',
-        enforcementSource: Array.isArray(rolesAllowed)
+        enforcementSource: Array.isArray(rule.condition?.rolesAllowed)
             ? 'RBAC'
             : 'DSL',
-        reason: Array.isArray(rolesAllowed)
+        reason: Array.isArray(rule.condition?.rolesAllowed)
             ? `Role ${role} is allowed by policy`
             : 'Rule matched but no enforcement action was triggered',
     };

@@ -23,6 +23,8 @@ export const healthcareSchema = buildSchema(`
     testResult: String
     medicalHistory: String
     message: String
+    comments: String
+    remarks: String
 
     appointments: [Appointment]
   }
