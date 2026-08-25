@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>Healthcare Privacy Demo</title>
+
+  <style>
+    body {
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 32px;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #17202a;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    .description {
+      margin-top: 0;
+      color: #566573;
+    }
+
+    .panel {
+      margin-top: 24px;
+      padding: 24px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px
+        rgba(0, 0, 0, 0.08);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      font-weight: bold;
+    }
+
+    select {
+      min-width: 220px;
+      padding: 10px;
+      font-size: 15px;
+    }
+
+    textarea {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 180px;
+      padding: 14px;
+      font-family: monospace;
+      font-size: 15px;
+      border: 1px solid #abb2b9;
+      border-radius: 6px;
+    }
+
+    button {
+      margin-top: 16px;
+      padding: 11px 22px;
+      border: none;
+      border-radius: 6px;
+      background: #2471a3;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #95a5a6;
+      cursor: wait;
+    }
+
+    pre {
+      min-height: 220px;
+      overflow: auto;
+      padding: 18px;
+      border-radius: 6px;
+      background: #17202a;
+      color: #ecf0f1;
+      white-space: pre-wrap;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Healthcare Privacy Framework</h1>
+
+  <p class="description">
+    Execute the same GraphQL query using different
+    roles and purposes.
+  </p>
+
+  <section class="panel">
+    <div class="controls">
+      <label>
+        User role
+
+        <select id="role">
+          <option value="doctor">
+            Doctor
+          </option>
+
+          <option value="nurse">
+            Nurse
+          </option>
+
+          <option value="billing">
+            Billing
+          </option>
+
+          <option value="receptionist">
+            Receptionist
+          </option>
+
+          <option value="guest">
+            Guest
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Access purpose
+
+        <select id="purpose">
+          <option value="treatment">
+            Treatment
+          </option>
+
+          <option value="identity_verification">
+            Identity verification
+          </option>
+
+          <option value="billing">
+            Billing
+          </option>
+
+          <option value="appointment">
+            Appointment scheduling
+          </option>
+
+          <option value="marketing">
+            Marketing
+          </option>
+        </select>
+      </label>
+    </div>
+
+    <label for="query">
+      GraphQL query
+    </label>
+
+    <textarea id="query">
+query {
+  patient {
+    name
+    diagnosis
+    nric
+    notes
+  }
+}</textarea>
+
+    <button id="runButton">
+      Run privacy check
+    </button>
+
+    <div
+      id="status"
+      class="status"
+    ></div>
+  </section>
+
+  <section class="panel">
+    <h2>GraphQL response</h2>
+
+    <pre id="result">
+Select a role and purpose, then run the query.
+    </pre>
+  </section>
+
+  <script>
+    const runButton =
+      document.getElementById('runButton');
+
+    const resultElement =
+      document.getElementById('result');
+
+    const statusElement =
+      document.getElementById('status');
+
+    runButton.addEventListener(
+      'click',
+      async () => {
+        const role =
+          document.getElementById('role').value;
+
+        const purpose =
+          document.getElementById(
+            'purpose'
+          ).value;
+
+        const query =
+          document.getElementById('query').value;
+
+        runButton.disabled = true;
+        statusElement.textContent =
+          'Executing privacy checks...';
+
+        resultElement.textContent = '';
+
+        try {
+          const response = await fetch(
+            '/graphql',
+            {
+              method: 'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json',
+              },
+
+              body: JSON.stringify({
+                query,
+                role,
+                purpose,
+              }),
+            }
+          );
+
+          const result = await response.json();
+
+          resultElement.textContent =
+            JSON.stringify(
+              result,
+              null,
+              2
+            );
+
+          statusElement.textContent =
+            response.ok
+              ? `Completed as ${role} for ${purpose}.`
+              : 'Request failed.';
+        } catch (error) {
+          statusElement.textContent =
+            'Unable to contact the server.';
+
+          resultElement.textContent =
+            error instanceof Error
+              ? error.message
+              : String(error);
+        } finally {
+          runButton.disabled = false;
+        }
+      }
+    );
+  </script>
+</body>
+</html>

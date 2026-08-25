@@ -1262,5 +1262,4 @@ HealthcareLLMIntegrationCase[] = [
     expectedAction: 'mask',
     category: 'long-text',
   },
-  */
 ];

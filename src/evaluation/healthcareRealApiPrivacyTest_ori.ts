@@ -16,9 +16,9 @@ import { healthcareLLMIntegrationCases } from './healthcareQueryCases_LLM';
 import { runPrivacyTest } from './runPrivacyTest';
 
 const allCases = [
-//  ...healthcareRealApiQueryCases,
+  ...healthcareRealApiQueryCases,
 //  ...healthcareRealApiMutationCases,
-...healthcareLLMIntegrationCases,
+//...healthcareLLMIntegrationCases,
 ];
 
 type PrivacyAction = 'allow' | 'mask' | 'block';
