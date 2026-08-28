@@ -12,6 +12,7 @@ import { healthcareSchema } from '../config/healthcareSchema';
 
 import { healthcareQueryCases } from './healthcareQueryCases';
 import { runPrivacyTest } from './runPrivacyTest';
+import { syntheaQueryCases } from './synthea/syntheaQueryCases';
 
 // -----------------------------------------------------------
 // Fields requiring LLM-based privacy checking
@@ -25,7 +26,8 @@ const unstructuredFields = [
 ];
 
 const allCases = [
-  ...healthcareQueryCases,
+  //...healthcareQueryCases,
+  ...syntheaQueryCases,
 
   // Add mutation cases later if required:
   // ...healthcareMutationCases,
